@@ -1,6 +1,5 @@
-#ifndef _MAT_H
-// TODO check this def
-#define _MAT_H
+#ifndef MAT_H
+#define MAT_H
 
 #include <stdint.h>
 
@@ -23,11 +22,18 @@ typedef struct
     float *data;
 } Mat;
 
-// Generate matrix elements based on a function fn
+// Generate matrix elements based on a function fn(void) -> float
 void mat_genf(Mat m, float fn(void));
+
+// Naive matrix multiplication with bad memory access pattern
+void mat_mult_slow(const Mat a, const Mat b, Mat result);
+
+// Improved memory access pattern
+void mat_mult(const Mat a, const Mat b, Mat result);
+
+// Transposed multiplication
+void mat_mult_trans(const Mat a, const Mat b, Mat result);
 
 void mat_print(Mat m);
 
-void mat_mult(Mat res, Mat a, Mat b);
-
-#endif // _MAT_H
+#endif // MAT_H
