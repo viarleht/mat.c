@@ -25,6 +25,15 @@ typedef struct
 // Generate matrix elements based on a function fn(void) -> float
 void mat_genf(Mat m, float fn(void));
 
+// Transposes matrix a and stores the result into matrix b.
+void mat_trans(const Mat a, Mat b);
+
+// Cache-oblivious matrix transpose.
+void mat_trans_co(const Mat a, Mat b);
+
+// Transposes matrix a in place.
+void mat_trans_inplace(Mat a);
+
 // Naive matrix multiplication with bad memory access pattern
 void mat_mult_slow(const Mat a, const Mat b, Mat result);
 
