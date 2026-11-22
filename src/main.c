@@ -35,52 +35,74 @@ void get_tdiff(struct timespec start, struct timespec end, struct timespec *diff
 int main(void)
 {
     // Malloc a contiguous piece of memory for the lib
-    // NOTE The size here should be enough for all 3 matrices, careful when rows != cols
-    float *mat_data = malloc(sizeof(*mat_data) * (MAT_ROWS * MAT_COLS * 2 + MAT_ROWS * MAT_ROWS));
+    // NOTE The size here should be enough for all used matrices, careful when rows != cols
+
+    // float *mat_data = malloc(sizeof(*mat_data) * (MAT_ROWS * MAT_COLS * 2 + MAT_ROWS * MAT_ROWS));
+    float *mat_data = malloc(sizeof(*mat_data) * MAT_SIZE * MAT_SIZE * 5);
 
     // Widened cast to ptrdiff_t
     Mat a = {
         .rows = MAT_ROWS,
         .cols = MAT_COLS,
-        .data = mat_data + (ptrdiff_t)(0 * MAT_ROWS * MAT_COLS),
+        // Sizes here should be the max of cols/rows st. no memory overlaps.
+        // Additionally could define MAT_SIZE to be this max so you can just use that
+        .data = mat_data + (ptrdiff_t)(0 * MAT_SIZE * MAT_SIZE),
     };
     Mat b = {
         .rows = MAT_COLS,
         .cols = MAT_ROWS,
-        .data = mat_data + (ptrdiff_t)(1 * MAT_ROWS * MAT_COLS),
+        .data = mat_data + (ptrdiff_t)(1 * MAT_SIZE * MAT_SIZE),
     };
-    // Mat c = {
+    Mat c = {
+        .rows = MAT_ROWS,
+        .cols = MAT_ROWS,
+        .data = mat_data + (ptrdiff_t)(2 * MAT_SIZE * MAT_SIZE),
+    };
+    // Mat d = {
     //     .rows = MAT_ROWS,
     //     .cols = MAT_ROWS,
-    //     .data = mat_data + (ptrdiff_t)(2 * MAT_ROWS * MAT_COLS),
+    //     .data = mat_data + (ptrdiff_t)(3 * MAT_SIZE * MAT_SIZE),
     // };
 
     // Fill matrices a and b with random values using rng_norm
-    mat_genf(a, rng_norm);
-    printf("a:\n");
-    mat_print(a);
-    // mat_genf(b, rng_norm);
-    mat_trans(a, b);
-    printf("aT:\n");
-    mat_print(b);
+    mat_genf(&a, rng_norm);
 
-    // struct timespec t_start;
-    // struct timespec t_end;
-    // struct timespec t_diff;
-    //
-    // clock_gettime(CLOCK_MONOTONIC, &t_start);
-    // mat_mult(a, b, c);
-    // clock_gettime(CLOCK_MONOTONIC, &t_end);
-    //
-    // // Get diff and convert
-    // get_tdiff(t_start, t_end, &t_diff);
-    // long long diff = (t_diff.tv_sec * 1000000000LL) + t_diff.tv_nsec;
-    //
-    // printf("mat_mult time: %0.3f s\n", (float)diff / 1e9);
+    // printf("a:\n");
+    // mat_print(&a);
+    mat_genf(&b, rng_norm);
+
+
+    struct timespec t_start;
+    struct timespec t_end;
+    struct timespec t_diff;
+
+    // Time start
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
+
+    // Operation
+    mat_mult(&a, &b, &c);
+    // mat_print(&c);
+    // mat_mult_slow(&a, &b, &c);
+    // mat_trans(&b, &c);
+    // mat_mult_trans(&a, &c, &d);
+    // mat_print(&d);
+
+    // Time end
+    clock_gettime(CLOCK_MONOTONIC, &t_end);
+
+    // Get diff and convert
+    get_tdiff(t_start, t_end, &t_diff);
+    long long diff = (t_diff.tv_sec * 1000000000LL) + t_diff.tv_nsec;
+
+    printf("Operation time: %0.10f s\n", (float)diff / 1e9);
 
     // printf("sizeof Mat pointer: %zu\n", sizeof(Mat *));
     // printf("sizeof Mat        : %zu\n", sizeof(Mat));
 
+    // printf("aT:\n");
+    // mat_print(&b);
+
+    // Free memory just in case.
     free(mat_data);
 
     return 0;
