@@ -2,7 +2,6 @@
 // Inspired by https://www.youtube.com/watch?v=zJ4y_JNBRKg
 
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -14,7 +13,11 @@
 #define MAT_SIZE 4
 #define MAT_ROWS 4
 #define MAT_COLS 3
-// TODO MAT_COLS and MAT_ROWS etc. currently using square matrices only
+
+// Large matrices
+// #define MAT_SIZE 1024
+// #define MAT_ROWS 1024
+// #define MAT_COLS 960
 
 // Time diff from 2 timespecs
 // TODO Maybe make this better
@@ -37,10 +40,12 @@ int main(void)
     // Malloc a contiguous piece of memory for the lib
     // NOTE The size here should be enough for all used matrices, careful when rows != cols
 
+    // NOTE Assume that MAT_SIZE = max(MAT_COLS,MAT_ROWS), maybe use a macro for this later.
+    //
     // float *mat_data = malloc(sizeof(*mat_data) * (MAT_ROWS * MAT_COLS * 2 + MAT_ROWS * MAT_ROWS));
     float *mat_data = malloc(sizeof(*mat_data) * MAT_SIZE * MAT_SIZE * 5);
 
-    // Widened cast to ptrdiff_t
+    // Widened cast to ptrdiff_t, check later
     Mat a = {
         .rows = MAT_ROWS,
         .cols = MAT_COLS,
@@ -66,11 +71,12 @@ int main(void)
 
     // Fill matrices a and b with random values using rng_norm
     mat_genf(&a, rng_norm);
-
     // printf("a:\n");
     // mat_print(&a);
-    mat_genf(&b, rng_norm);
 
+    mat_genf(&b, rng_norm);
+    // mat_print(&b);
+    // mat_print(&c);
 
     struct timespec t_start;
     struct timespec t_end;
@@ -79,16 +85,18 @@ int main(void)
     // Time start
     clock_gettime(CLOCK_MONOTONIC, &t_start);
 
+
     // Operation
-    mat_mult(&a, &b, &c);
-    // mat_print(&c);
+    mat_mult_tiled(&a, &b, &c);
+    // mat_mult(&a, &b, &c);
     // mat_mult_slow(&a, &b, &c);
     // mat_trans(&b, &c);
     // mat_mult_trans(&a, &c, &d);
-    // mat_print(&d);
 
     // Time end
     clock_gettime(CLOCK_MONOTONIC, &t_end);
+
+    // mat_print(&c);
 
     // Get diff and convert
     get_tdiff(t_start, t_end, &t_diff);

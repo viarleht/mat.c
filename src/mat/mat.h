@@ -44,14 +44,19 @@ void mat_trans_inplace(Mat *a);
 
 // --- Matrix Multiplication ---
 //
+// NOTE Multiplication assumes that the result is a zero matrix!!
+// Change this later if too inconvenient.
+//
 // Naive matrix multiplication with bad memory access pattern
 void mat_mult_slow(const Mat *a, const Mat *b, Mat *result);
 // Improved memory access pattern
 void mat_mult(const Mat *a, const Mat *b, Mat *result);
 // Transposed multiplication.
 void mat_mult_trans(const Mat *a, const Mat *b, Mat *result);
+void mat_mult_tiled(const Mat *a, const Mat *b, Mat *result);
 // Cache oblivious matrix multiplication using matrix blocking.
 void mat_mult_block(const Mat *a, const Mat *b, Mat *result);
+void mat_mult_block2(const Mat *a, const Mat *b, Mat *result);
 
 
 // --- Utility ---
